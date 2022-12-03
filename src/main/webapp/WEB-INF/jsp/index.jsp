@@ -90,8 +90,9 @@
 <div id="logo">
     <img src="<c:url value="/img/logo-horizontal.png"/>" alt="Университет ИТМО">
 </div>
-<script src="<c:url value="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"/>"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
 <script src="<c:url value="/scripts/main.js"/>"></script>
+<script src="<c:url value="/scripts/validation.js"/>"></script>
 <script src="<c:url value="/scripts/graph.js"/>"></script>
 </body>
 </html>
