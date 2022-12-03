@@ -11,21 +11,21 @@
    - Остальное: **ввести yes**
 3. **Настроить порты:**
    - Открыть в папке standalone/configuration/ файл `standalone.xml`
-   - В строке `500` (в конце файла) сменить оффсет с нуля на свой 
+   - В строке `500` (в конце файла) сменить offset с нуля на свой (для примера взял `9999`)
      - Было:
        ```xml
        <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
        ```
      - Стало:
        ```xml
-       <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:2400}">
+       <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:9999}">
        ```
    - Таким образом порты будут `8080 + offset` и `9990 + offset` для запуска сервера и админки соответственно
 4. **Использование в IntelliJ IDEA:**
    - Создать/Открыть проект (при создании из зависимостей достаточно выбрать только `Servlet API`)
    - Вверху нажать `Edit configuration`
    - Нажать на `+` (Add configuration)
-   - В списке выбрать `JBoss/Wildfly Local`
+   - В списке выбрать `JBoss/WildFly Local`
    - Внизу нажать на `Fix` или перейти на вкладку `Deployments` и добавить артефакт (я добавлял просто `war`)
 5. **Запуск на Helios:**
    - Перенести архив с `WildFly` на сервер (через консоль и `scp` или через `WinSCP/FileZilla`) и распаковать его (через `unzip`), 
