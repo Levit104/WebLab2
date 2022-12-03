@@ -21,18 +21,18 @@ public class AreaCheckServlet extends HttpServlet {
         String yString = request.getParameter("y");
         String rString = request.getParameter("r");
 
-        boolean allValuesValid = validValue(xString, -3, 5, false) &&
+        boolean allValid = validValue(xString, -3, 5, false) &&
                 validValue(yString, -3, 5, true) &&
                 validValue(rString, 1, 5, false);
 
-        if (allValuesValid) {
+        if (allValid) {
             double xValue = Double.parseDouble(xString);
             double yValue = Double.parseDouble(yString);
             double rValue = Double.parseDouble(rString);
             boolean isInside = insideArea(xValue, yValue, rValue);
 
             String parameterName = "timezone";
-            String pattern = "dd/MM/yyyy HH:mm:ss";
+            String pattern = "dd-MM-yyyy HH:mm:ss";
             String currentTime = calculateCurrentTime(request, parameterName, pattern);
             String executionTime = calculateExecutionTime(startTime);
 
@@ -81,22 +81,23 @@ public class AreaCheckServlet extends HttpServlet {
                     .minusMinutes(Long.parseLong(request.getParameter(parameterName)))
                     .format(DateTimeFormatter.ofPattern(pattern));
         } catch (NumberFormatException | DateTimeException e) {
-            currentTime = "-----";
+            currentTime = "Н/Д";
         }
         return currentTime;
     }
 
     private String calculateExecutionTime(long startTime) {
         // 1 секунда = 1_000_000_000 наносекунд
-        return String.format("%.5f", (System.nanoTime() - startTime) / 1_000_000_000.0);
+        return String.format("%.7f", (System.nanoTime() - startTime) / 1_000_000_000.0);
     }
 
     private void addResultToTable(HttpServletRequest request, String containerName, String resultName, Result result) {
-        ResultsContainer resultsContainer = (ResultsContainer) request.getSession().getAttribute(containerName);
+        HttpSession session = request.getSession();
+        ResultsContainer resultsContainer = (ResultsContainer) session.getAttribute(containerName);
         if (resultsContainer == null) resultsContainer = new ResultsContainer();
         resultsContainer.getResults().add(result);
-        request.getSession().setAttribute(containerName, resultsContainer);
-        request.getSession().setAttribute(resultName, result);
+        session.setAttribute(containerName, resultsContainer);
+        session.setAttribute(resultName, result);
     }
 
 }

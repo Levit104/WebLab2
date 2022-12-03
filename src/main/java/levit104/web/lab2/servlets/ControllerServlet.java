@@ -35,9 +35,10 @@ public class ControllerServlet extends HttpServlet {
     }
 
     private void clearTable(HttpServletRequest request, String attributeName) {
-        ResultsContainer resultsContainer = (ResultsContainer) request.getSession().getAttribute(attributeName);
+        HttpSession session = request.getSession();
+        ResultsContainer resultsContainer = (ResultsContainer) session.getAttribute(attributeName);
         if (resultsContainer == null) resultsContainer = new ResultsContainer();
         resultsContainer.getResults().clear();
-        request.getSession().setAttribute(attributeName, resultsContainer);
+        session.setAttribute(attributeName, resultsContainer);
     }
 }

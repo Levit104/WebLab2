@@ -8,7 +8,7 @@ let timezone = document.querySelector('#timezone');
 let form = document.querySelector('#form');
 let clearButton = document.querySelector('#clear_button');
 let graph = document.querySelector('#graph');
-let htmlTableRows = document.querySelectorAll('#result_table tr');
+let htmlTableRows = document.querySelectorAll('#results_container tr');
 let resultsContainer = [];
 
 // Сохранение позиции курсора и его возврат после перезагрузки страницы
@@ -76,10 +76,9 @@ form.addEventListener('reset', function () {
 
     removeErrors();
     drawGraph();
-    // TODO убрать или оставить?
-    drawData(resultsContainer);
 });
 
+// Очистка таблицы при нажатии соответствующей кнопки
 clearButton.addEventListener('click', function () {
     let parameter = {
         clear: 'true'
@@ -111,52 +110,55 @@ elementR.addEventListener('change', function () {
 
 // Отрисовка точки при нажатии на график
 graph.onmousedown = function (event) {
-    removeErrors();
+    // 1 - левая кнопка мыши (игнор клика правой кнопкой)
+    if (event.which === 1) {
+        removeErrors();
 
-    if (validSelectOption(elementR, false)) {
-        let rect = this.getBoundingClientRect();
+        if (validSelectOption(elementR, false)) {
+            let rect = this.getBoundingClientRect();
 
-        let canvasX = event.clientX - rect.left;
-        let canvasY = event.clientY - rect.top;
+            let canvasX = event.clientX - rect.left;
+            let canvasY = event.clientY - rect.top;
 
-        let x = ((canvasX - HALF_WIDTH) * elementR.value/2)/HALF_STEP;
-        let y = ((HALF_HEIGHT - canvasY) * elementR.value/2)/HALF_STEP;
+            let x = ((canvasX - HALF_WIDTH) * elementR.value/2)/HALF_STEP;
+            let y = ((HALF_HEIGHT - canvasY) * elementR.value/2)/HALF_STEP;
 
-        let roundX = x.toFixed(2);
-        let roundY = y.toFixed(2);
+            let roundX = x.toFixed(2);
+            let roundY = y.toFixed(2);
 
-        if (!validCoordinate(roundX, -3, 5, false)) {
-            insertError('Координата X вне диапазона [-3, 5]', this, false);
-            return;
-        }
-
-        if (!validCoordinate(roundY, -3, 5, true)) {
-            insertError('Координата Y вне диапазона (-3, 5)', this, false);
-            return;
-        }
-
-        let result = {
-            x: roundX,
-            y: roundY,
-            r: elementR.value,
-            timezone: new Date().getTimezoneOffset()
-        };
-
-        $.ajax({
-            url: 'controller',
-            method: 'POST',
-            data: serialize(result),
-            dataType: 'html',
-            success: function () {
-                // аналогично location.reload(), но не требует подтверждение перезагрузки при POST запросе
-                window.location = window.location;
-            },
-            error: function (error) {
-                console.log(error);
+            if (!validCoordinate(roundX, -3, 5, false)) {
+                insertError('Координата X вне диапазона [-3, 5]', this, false);
+                return;
             }
-        });
-    } else {
-        insertError('Выберите радиус!', this, false);
+
+            if (!validCoordinate(roundY, -3, 5, true)) {
+                insertError('Координата Y вне диапазона (-3, 5)', this, false);
+                return;
+            }
+
+            let result = {
+                x: roundX,
+                y: roundY,
+                r: elementR.value,
+                timezone: new Date().getTimezoneOffset()
+            };
+
+            $.ajax({
+                url: 'controller',
+                method: 'POST',
+                data: serialize(result),
+                dataType: 'html',
+                success: function () {
+                    // аналогично location.reload(), но не требует подтверждение перезагрузки при POST запросе
+                    window.location = window.location;
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        } else {
+            insertError('Выберите радиус!', this, false);
+        }
     }
 }
 
@@ -193,50 +195,6 @@ function drawData(resultsContainer) {
     }
 }
 
-// Проверка списка
-function validSelectOption(element, displayMessage = true) {
-    if (element.selectedIndex === 0) {
-        if (displayMessage) insertError('Значение не выбрано', element);
-        return false;
-    }
-    return true;
-}
-
-// Проверка текстового поля
-function validTextField(element, min, max) {
-    let value = element.value;
-
-    if (!value) {
-        insertError('Пустое поле', element);
-        return false;
-    } else if (!isNumeric(value) || value <= min || value >= max) {
-        insertError('Недопустимое значение', element);
-        return false;
-    } else if (value.length > 1 && value.slice(-1) === '0') {
-        insertError('Лишние нули', element);
-        return false;
-    } else if (value.slice(-1) === '.' || value.slice(-1) === ',' || /[,]{2,}/.test(value) || /[.]{2,}/.test(value)) {
-        insertError('Лишний разделитель', element);
-        return false;
-    } else if (value.search(',') !== -1) {
-        insertError('Разделитель - точка', element);
-        return false;
-    }
-
-    return true;
-}
-
-// Проверка координаты на графике
-function validCoordinate(value, min, max, isStrict) {
-    return (isStrict) ? (value > min && value < max) : (value >= min && value <= max);
-}
-
-// Проверка является ли строка числом
-function isNumeric(string) {
-    let number = parseFloat(string);
-    return !isNaN(number) && isFinite(number);
-}
-
 // Сериализация объекта (в строку запроса)
 function serialize(object) {
     let string = [];
@@ -247,28 +205,4 @@ function serialize(object) {
         }
     }
     return string.join('&');
-}
-
-// Вставка блока с ошибкой (по умолчанию до элемента)
-function insertError(message, element, insertBefore = true) {
-    if (insertBefore) {
-        element.parentElement.insertBefore(createError(message), element);
-    } else {
-        element.parentNode.insertBefore(createError(message), element.nextSibling);
-    }
-}
-
-// Создание блока с ошибкой (цвета, рамки и т.д. в CSS)
-function createError(message) {
-    let error = document.createElement('div');
-    error.className = 'error';
-    error.innerHTML = message;
-    return error;
-}
-
-// Очистка ошибок (чтобы не появлялось несколько надписей подряд)
-function removeErrors() {
-    document.querySelectorAll('.error').forEach(error => {
-        error.remove();
-    });
 }

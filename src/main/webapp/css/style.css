@@ -71,7 +71,9 @@ tr:hover {
     margin-bottom: 10px;
 }
 
-#x_value, #r_value {
+#x_value,
+#r_value,
+.custom_button {
     cursor: pointer;
 }
 
@@ -106,7 +108,6 @@ tr:hover {
     font-size: 14px;
     font-weight: 600;
     font-family: sans-serif;
-    cursor: pointer;
 }
 
 /* псевдокласс */
@@ -131,6 +132,12 @@ tr:hover {
 }
 
 /* идентификатор */
+#graph {
+    /*border: 2px solid black;*/
+    margin: 10px;
+}
+
+/* идентификатор */
 #logo {
     border: none;
 }
@@ -138,9 +145,4 @@ tr:hover {
 /* дочерний элемент */
 #logo>img {
     width: 25%;
-}
-
-#graph {
-    /*border: 2px solid black;*/
-    margin: 10px;
 }

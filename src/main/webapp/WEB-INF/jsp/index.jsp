@@ -57,7 +57,7 @@
 </div>
 <div>
     <h1>Предыдущие запросы</h1>
-    <table id="result_table">
+    <table id="results_container">
         <thead>
         <tr>
             <th>X</th>
